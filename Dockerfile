@@ -5,4 +5,4 @@ WORKDIR /app
 RUN mkdir /app/db
 COPY . .
 VOLUME /app/db
-CMD ["python3", "rss.py"]
+CMD python3 -u rss.py

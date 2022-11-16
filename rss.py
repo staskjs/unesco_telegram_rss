@@ -9,8 +9,6 @@ token = os.environ['TOKEN']
 chat_id = os.environ['CHATID']
 feed_url = os.environ['FEEDURL']
 
-feed = feedparser.parse(feed_url)
-
 async def main():
     bot = telegram.Bot(token)
     async with bot:
@@ -23,6 +21,7 @@ async def main():
                 ids_file = open('db/ids.txt', 'r')
             ids = ids_file.read().split('\n')
             i = 0
+            feed = feedparser.parse(feed_url)
             id = feed.entries[i].id
             print('latest id is {id}'.format(id=id))
             if id in ids:
@@ -43,7 +42,7 @@ async def main():
             # Подготавливаем описание
             caption = '<b>' + feed.entries[i].title + '</b>\n\n' + content
             link = feed.entries[i].link
-            link = '\n<a href="' + link + '">' + link + '</a>'
+            link = '\n<a href="' + link + '">ru.unesco.kz</a>'
             # Ссылка должна влезать всегда, независимо от лимита
             maxlen = 1021 - len(link)
             # Лимит на количество символов, ограничиваем и добавляем троеточие если превышен
