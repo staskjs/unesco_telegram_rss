@@ -24,20 +24,35 @@ async def main():
             ids = ids_file.read().split('\n')
             i = 0
             id = feed.entries[i].id
+            print('latest id is {id}'.format(id=id))
             if id in ids:
+                print('{id} exists'.format(id=id))
+                time.sleep(10)
                 continue
 
+            # Вытаскиваем картинку
             soup = Soup(feed.entries[i].summary, features="html.parser")
+            # Вытаскиваем контент
             photo_url = soup.a.img['src']
             soup2 = Soup(feed.entries[i].summary_detail.value, features="html.parser")
             strs = []
             for string in soup.strings:
                 strs.append(str(string))
             content = ' '.join(strs)
-            caption = feed.entries[i].title + '\n' + content
-            caption = (caption[:1021] + '...') if len(caption) > 1021 else caption
 
-            await bot.send_photo(chat_id, photo_url, caption)
+            # Подготавливаем описание
+            caption = '<b>' + feed.entries[i].title + '</b>\n\n' + content
+            link = feed.entries[i].link
+            link = '\n<a href="' + link + '">' + link + '</a>'
+            # Ссылка должна влезать всегда, независимо от лимита
+            maxlen = 1021 - len(link)
+            # Лимит на количество символов, ограничиваем и добавляем троеточие если превышен
+            caption = (caption[:maxlen] + '...') if len(caption) > maxlen else caption
+            caption += link
+
+            await bot.send_photo(chat_id, photo_url, caption, parse_mode='HTML')
+
+            print('handled id {id}'.format(id=id))
 
             ids_file = open('db/ids.txt', 'a')
             ids_file.write('\n' + id)
